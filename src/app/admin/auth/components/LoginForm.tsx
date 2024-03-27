@@ -3,18 +3,46 @@ import Input from "@/components/common/Input";
 import React from "react";
 import { useForm } from "react-hook-form";
 
-interface IData{
+interface IData {
   email: string;
   password: string;
 }
 const LoginForm = () => {
- const {register} = useForm<IData>({
-
- })
+  const { control, handleSubmit, formState } = useForm<IData>({});
+  console.log("🚀 ~ formState:", formState);
   return (
-    <form className="space-y-4 md:space-y-6" action="#">
-      <Input label="Email" name="email" placeholder="Enter your email" />
-      <Input label="Password" name="password" placeholder="••••••••" />
+    <form
+      className="space-y-4 md:space-y-6"
+      onSubmit={handleSubmit(
+        (data) => {
+          console.log(data);
+        },
+        (err) => {
+          console.log("🚀 ~ onSubmit={handleSubmit ~ err:", err);
+        }
+      )}
+    >
+      <Input
+        label="Email"
+        name="email"
+        placeholder="Enter your email"
+        control={control}
+        rules={{
+          required: true,
+          pattern: /^\S+@\S+\.\S+$/
+        }}
+      />
+      <Input
+        label="Password"
+        name="password"
+        placeholder="••••••••"
+        control={control}
+        rules={{
+          required: true,
+        }}
+        type="password"
+
+      />
 
       <div className="flex items-center justify-between">
         <div className="flex items-start">
