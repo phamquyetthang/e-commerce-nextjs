@@ -1,27 +1,46 @@
 "use client";
 import Input from "@/components/common/Input";
-import React from "react";
+import { BASE_URL } from "@/constants/common";
+import { message } from "antd";
+import axios, { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 interface IData {
   email: string;
   password: string;
+  remember: boolean;
 }
 const LoginForm = () => {
-  const { control, handleSubmit, formState } = useForm<IData>({});
+  const { control, handleSubmit, formState, register } = useForm<IData>({});
+  const router = useRouter();
   console.log("🚀 ~ formState:", formState);
-  return (
-    <form
-      className="space-y-4 md:space-y-6"
-      onSubmit={handleSubmit(
-        (data) => {
-          console.log(data);
-        },
-        (err) => {
-          console.log("🚀 ~ onSubmit={handleSubmit ~ err:", err);
+  const onLogin = async (data: IData) => {
+    try {
+      const res = await axios.post(`${BASE_URL}/api/admin/login`, data);
+      if (res.data.token) {
+        if (data.remember) {
+          localStorage.setItem("adminToken", res.data.token);
+        } else {
+          sessionStorage.setItem("adminToken", res.data.token);
         }
-      )}
-    >
+
+        router.push("/admin");
+      } else {
+        message.error("Login error! Check your email/ password!");
+      }
+    } catch (error) {
+      const errMess = (error as AxiosError<{ message: string }>).response?.data
+        ?.message;
+      console.log("🚀 ~ onLogin ~ error:", error);
+      message.error(errMess || "Login error! Check your email/ password!");
+    }
+  };
+
+  
+  return (
+    <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit(onLogin)}>
       <Input
         label="Email"
         name="email"
@@ -29,7 +48,7 @@ const LoginForm = () => {
         control={control}
         rules={{
           required: true,
-          pattern: /^\S+@\S+\.\S+$/
+          pattern: /^\S+@\S+\.\S+$/,
         }}
       />
       <Input
@@ -41,7 +60,6 @@ const LoginForm = () => {
           required: true,
         }}
         type="password"
-
       />
 
       <div className="flex items-center justify-between">
@@ -51,6 +69,7 @@ const LoginForm = () => {
               id="remember"
               aria-describedby="remember"
               type="checkbox"
+              {...register("remember")}
               className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
             />
           </div>
