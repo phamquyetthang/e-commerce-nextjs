@@ -20,6 +20,8 @@ const LoginForm = () => {
         email: data.email,
         password: data.password,
         redirect: false,
+        role: 'admin',
+        remember: data.remember
       });
       if (res?.error) {
         message.error(res.error || "Login error! Check your email/ password!");
