@@ -1,10 +1,9 @@
 "use client";
 import Input from "@/components/common/Input";
-import { BASE_URL } from "@/constants/common";
 import { message } from "antd";
-import axios, { AxiosError } from "axios";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 
 interface IData {
@@ -15,30 +14,24 @@ interface IData {
 const LoginForm = () => {
   const { control, handleSubmit, formState, register } = useForm<IData>({});
   const router = useRouter();
-  console.log("🚀 ~ formState:", formState);
   const onLogin = async (data: IData) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/admin/login`, data);
-      if (res.data.token) {
-        if (data.remember) {
-          localStorage.setItem("adminToken", res.data.token);
-        } else {
-          sessionStorage.setItem("adminToken", res.data.token);
-        }
-
-        router.push("/admin");
+      const res = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+      if (res?.error) {
+        message.error(res.error || "Login error! Check your email/ password!");
       } else {
-        message.error("Login error! Check your email/ password!");
+        router.push("/admin");
       }
     } catch (error) {
-      const errMess = (error as AxiosError<{ message: string }>).response?.data
-        ?.message;
-      console.log("🚀 ~ onLogin ~ error:", error);
-      message.error(errMess || "Login error! Check your email/ password!");
+      console.error(error);
+      message.error("Login error! Check your email/ password!");
     }
   };
 
-  
   return (
     <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit(onLogin)}>
       <Input
