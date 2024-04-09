@@ -1,5 +1,7 @@
 import { ICategory } from "@/app/api/admin/categories/route";
+import Search from "@/components/common/admin/Search";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Pagination,
   PaginationContent,
@@ -12,7 +14,6 @@ import {
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -22,14 +23,21 @@ import { BASE_URL } from "@/constants/common";
 import { Pencil, Trash2 } from "lucide-react";
 import React from "react";
 
-const Categories = async () => {
-  const res = await fetch(`${BASE_URL}/api/admin/categories`);
+interface IProps{
+  searchParams: {
+    keyword: string
+  }
+}
+const Categories = async ({searchParams}: IProps) => {
+  const res = await fetch(`${BASE_URL}/api/admin/categories?${new URLSearchParams(searchParams)}`);
   const data = await res.json();
 
   const categories: Array<ICategory> = data.data;
 
   return (
     <div className="flex flex-col">
+      <h3 className="my-4 mx-1 font-bold">Categories Table Data</h3>
+      <Search />
       <Table>
         <TableHeader>
           <TableRow>
