@@ -34,7 +34,7 @@ export default function Search() {
         type="text"
         placeholder="Type your keyword"
       />
-      <Button type="submit" disabled={!keyword} onClick={onSearch}>
+      <Button type="submit" onClick={onSearch}>
         Search
       </Button>
     </div>
